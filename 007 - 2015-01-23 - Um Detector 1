@@ -1,0 +1,128 @@
+| Person | Transcripts |
+| :-- | :-- |
+| Ben: | Hey Katie. |
+| Katie: | Hey Ben. |
+| Ben: | I um... |
+| Katie: | Um... |
+| Ben: | Um... um... |
+| Katie: | Um... |
+| Ben: | Mm...hmm... |
+| Katie: | Um... |
+| Ben: | You're listening to Linear Digressions. |
+| Katie: | Ah... some good podcast we just did there. |
+| Ben: | What was that about? |
+| Katie: | So in the course of editing of our fine podcast |
+| Ben: | This podcast. |
+| Katie: | This very podcast I begin to notice a few things about myself. One is that I have a verbal tick, where when there's a gap, in what I'm saying, I tend to go 'um...' and I feel it. |
+| Ben: | Uh huh. |
+| Katie: | This is that made for particularly compelling listening so when I go back and edit, I usually take those out. And in the course of going to this process... |
+| Ben: | Actually, wait. You take out mine too right? |
+| Katie: | Um... |
+| Ben: | My 'um...'s. |
+| Katie: | I've been pretty good at taking out your 'so', you say 'so...'. |
+| Ben: | I do say 'so' a lot. |
+| Katie: | Yeah. |
+| Ben: | I say 'got it' too. Now everyone's gonna be listening for these things. |
+| Katie: | Yeah. |
+| Ben: | This is bad. |
+| Katie: | Yeah. So when you're editing a podcast as you know, you have sort of the little waveform of the speech floating right in front of you, and you can make little cuts in it, and then knits it back together. And so you get to have a sense not just for the sound as you hear it, but also for the shape of the waveform as it is happening. |
+| Ben: | Yeah, you can see the sound visually. Actually, as we are recording this, I'm watching my screen and I'm watching our voices turning into a wavewform, this little shape that gets thicker when we are talking and goes flat when we are quiet. |
+| Katie: | That's right. And then I was finding that, I actually, after a little while, could tell by eye, when I was very likely saying 'um' cause it has a fairly distinctive shape... |
+| Ben: | Yeah it is. |
+| Katie: | Very often there's a contextual evidence |
+| Ben: | There's a brief silence and then a little 'um'... |
+| Katie: | Yeah. |
+| Ben: | And there another brief silence, and then you go on saying what you're saying. |
+| Katie: | And so, I thought, 'Well, wouldn't it be cool if we can make an um detector?' |
+| Ben: | Oh my Gosh, of course you thought that. |
+| Katie: | That can figure out when it is happening cause if I can see it with my eyes then there's a good chance that there're some machine learning algorithm out there that can figure this out. And I don't know if we would go so far as actually deploying this as a ediing tool or something but just to see if I could do it. So that is gonna be what we're talking about today. This is a project that I'm working on, sort of nights and weekends. |
+| Ben: | An um detector? |
+| Katie: | An um detector. |
+| Ben: | (Laugh) For podcast. |
+| Katie: | And it is not finished yet, we are mid-streak right now. But I actually learned a lot in what I've done so far, and I think there's a lot of value taking a step back, and actually talking about this process as it's unfolding instead of just showing you a finished product, and being like ta-da! |
+| Ben: | Yes, so here's a real project, you are not done with it, it doesn't quite work? |
+| Katie: | Not yet, no. |
+| Ben: | And we're gonna talk about it? |
+| Katie: | Yeah, let's talk about it. So... |
+| Ben: | So what was your dataset first of all? |
+| Katie: | The dataset was the fisherfaces podcast that we do... |
+| Ben: | Okay. |
+| Katie: | That we did. So I went through and I had two different versions of this podcast: one where I had marked where all the 'um's are this is just the raw stuff. And then we also had an edited version, this is the one that we used where a lot of these 'um's were taken out. And so it's much more... not gonna say that there're no 'um's in it, there's still might be a couple, but the number of 'um's has been very much reduced, put it that way. So we have, sort of the sample that has a bunch of 'um's in it, and a sample that we know is mostly not 'um's. So I have my marked up... sort of... signal sample where my signal is my 'um's. I write a little Python script that takes the markers in the aiff file and figures out sort of what frames of audio that corresponds to... see there's a little window and all the frames inside of there are 'um'. |
+| Ben: | Frames being samples, they're like ones and zeros...ish numbers that correpsond to a particular amplitude and if you take a whole bunch of those and you're playing it back really fast and you get the sound and that's what you're listening to right now. It's... |
+| Katie: | Yeah and then numbers are what you see watching the waveform and your sound studio program are whatever... |
+| Ben: | Often times compressed but generally speaking what you're hearing is just a bunch of numbers that've been translated into sound. So you're taking those numbers and you are feeding those numbers... |
+| Katie: | Into machine learning algorithm eventually. The first thing that I did, as I get my aiff file reading in, I did figure out how to decode it and it actually takes some Googling to figure out how to turn this encoded audio file into just the numbers so that I could use the numbers. So if you read it out naively, you'll get a bunch of upside down question marks or something. So I turned it into numbers and then the next thing I did was just looked at... I drew the waveform in matplotlib for 49 'um's. Very prolific ... um... per se. |
+| Ben: | 49 'um's? |
+| Katie: | Yeah. |
+| Ben: | Wow. |
+| Katie: | There were 55 in fisherfaces eventually. 55 'um's. |
+| Ben: | There are 55 'um's in that episode? |
+| Katie: | Yeah, yeah. |
+| Ben: | That's...um... |
+| Katie: | Yeah |
+| Ben: | A lot. |
+| Katie: | So I looked at 49 of them. Cause you can make them into a nice seven-by-seven square. This backed up the hypothesis that I had that while there's not a perfect shape that distinguishes an 'um', there is kind of a trend there and it's maybe something machine learning algorithm can pick out. The next thing that I did, and this is actually a little bit subtle. When you say 'um', it can have a variable length. So I can say 'um', or I can say 'ummmm'. One of them is gonna be much longer than the other one. |
+| Ben: | Yeah, the second one is like three times as long. |
+| Katie: | Yeah, and this is something that will break your machine learning algorithm. |
+| Ben: | Because it needs similar data to compare? |
+| Katie: | It needs to have the same number of features. And a lot of times there're datasets that have missing features in them, but what you'll do is you sort of have that feature available to you by just put a dummy value into it or something like that. The machine learning algorithm needs to have it available even if it doesn't contain any sort of useful information. |
+| Ben: | And the feature in this case is one of those many many numbers? |
+| Katie: | Yes, just one of those frames, thank you. |
+| Ben: | Got it. So if you have five thousand features... five thoudands frames or numbers in a particular 'um' and the other one has ten thousand or something like that? |
+| Katie: | And that's gonna break it. |
+| Ben: | I see. |
+| Katie: | Yeah. |
+| Ben: | How do you get around that? |
+| Katie: | So I had one idea that didn't work, but let me tell you about that quickly. So that idea was to... I take the longest one that I have, and I say this is the maximum length that I'm gonna do, and I'm going to upsample, make sure the ones fill in and interpolate points within the short 'um' to stretch it out. |
+| Ben: | So you're taking all the short ones and you're stretching them to be a long enough...so with the same length as the longest one. |
+| Katie: | That's right. |
+| Ben: | You're normalizing the length? |
+| Katie: | That's right. And I wrote that code and it worked. But then, one thing I realized is that while this would be very interesting for training just the machine learning algorithm, it's gonna try to flag a particular set of frames as an 'um' or not, this isn't something I could actually deploy in an online sort of speech recognition type algorithm. Because I never know in a given context how long an 'um' is going to be. So saying I expect my 'um' to always be a particular length, and if it's shorter than that, I'm gonna stretch it out. That's not gonna fly... |
+| Ben: | You can't keep stretching out more and more and more of your audio, it'd become computationlly expensive to try to run it through your algorithm is that right? |
+| Katie: | Yeah, so this upsamling I think in the end is not... it's an intersesting idea, it'a cute idea, but it's not actually going to help us accomplish what we're trying to accomplish. |
+| Ben: | So what was next? |
+| Katie: | So the next thing... |
+| Ben: | More thinking? |
+| Katie: | (Laugh) So the next thing I did was I took the longest 'um' length that I had and I said always make the windows this length. So I always have a start frame that I trusted and then the longest window length that I happened to have was about forty thousand frames. So I said, from the starting marker, just count out forty thousand frames and that's the window. And so the 'um' might only fill half of that, but that's something that I'm gonna have to let the machine learning algorithm tease out. |
+| Ben: | Okay. |
+| Katie: | Yeah. So this I think will actually, that means you're gonna get more noise, because you're gonna have signal samples that have things other than 'um's in them, but I don't think there's a way around that for now. So I think this will hurt the performance of the algorithm in the long run, but it makes it something that you could actually maybe... maybe deploy. In sort of this online fashion, it could actually detect things as stuff ran through. |
+| Ben: | Mmhmm. |
+| Katie: | So then the next thing was I had all my signal 'um's, I had all my background other junk that I just took when... |
+| Ben: | Were you calling our podcast junk? |
+| Katie: | (Laughs) A little bit, yeah. |
+| Ben: | (Laughs) That's really cool. |
+| Katie: | So yeah, so I said I want a hundred background examples, so I just figured out what the frame length was, I just took random slices of audio from this edited podcast that didn't 'um's in it, so it's other stuff, I don't know what it is, but it's just other stuff. |
+| Ben: | This is not the 'um' stuff? |
+| Katie: | Yeah, and then I visualized those as well. And looks like while there's a pattern in the 'um's, there is not a reliable pattern in the background stuff. So this is helpful looks like maybe there're some discrimination we can get here. And then I will tell you where I got stuck. So I had all this really nice training data, and I wanted to have a separate testing sample, that I could feed now all of my 'um's and not 'um's into something like a decision tree classifier, I can have it learn from these samples what an 'um' is. |
+| Ben: | Mmhmm. |
+| Katie: | But then you want to have an independent testset that you use to evalutate it. So if you teach it with a certain sample, this is an 'um', you need to have another sample that has an 'um' that is never seen before. |
+| Ben: | I see. |
+| Katie: | I guessed that right, that it's figured it out. |
+| Ben: | So that could be another one of our podcasts for example? |
+| Katie: | Yes, so I run into one of the podcast that we taped last week, and I had accidentally got much better about |
+| Ben: | Oh no... |
+| Katie: | Saying 'um', so instead of having 55 'um's, in this podcast, there were four. |
+| Ben: | There were four 'um's? |
+| Katie: | Katie; There were four 'um's. |
+| Ben: | You got an order of [inaudible] better at 'um's? |
+| Katie: | Apparently. |
+| Ben: | Nice job. |
+| Katie: | Yeah, not very helpful... |
+| Ben: | (Laughs) |
+| Katie: | For evaluating this machine learning algorithm so there're a couple things I can do at this point. I need to edit some more, so I think I'm just gonna go in and try to make some more 'um's from an earlier episode where I think has probably very likely more of a problem. You can also just use some of these routines in sklearn that takes whatever the data you gave it and split it into a training and testing set so I wouldn't need to generate anymore data, I coud just use what I have already. So I can do either one of those. I haven't crossed that bridge yet. And that's where we are right now. |
+| Ben: | I'm very excited about this. |
+| Katie: | I am too. |
+| Ben: | You know what I love about this is, normally when you are talking that you've done, or... I'm sorry, normally when I'm talking about a project that I've done, I'll say Oh yeah I just did A, then I did Z and then I was done, right? And I skipped all of these stuff in between because I've forgotten it all. |
+| Katie: | Yeah. |
+| Ben: | Like I forgot all of the places that I got stuck, that I got frustrated, and ultimately what I shared is very unrealistic. And you see that all the time like 'Oh yeah, it's very easy. You just do blah blah blah and then you're done.' But it's very very rarely that simple. |
+| Katie: | Yeah, yeah. So I'll be honest, I spent a good week just figuring out how aiff encoding works. |
+| Ben: | Ha. |
+| Katie: | Cause I'd never used it before. Eventually I found someone who did a pretty cool example. He was working with... he was trying to find whale calls. He had a bunch of audio files, and some of them have whales in them and some of them are just sort of and ocean noise. And so he had to take the aiff files and encode them into integers basically. So... and he wrote a blog post about doing this project. |
+| Ben: | So you just grabbed his code? |
+| Katie: | I did, yeah. |
+| Ben: | Nice. |
+| Katie: | I was like, 'thank you!', so there's some Google black magic going on in here to figure out how to get around some of these little roadblocks. That was one of the bigger ones that I had. Um... and then obviously this issue of how long the window should be. |
+| Ben: | Yeah. |
+| Katie: | Yeah. So to be continued. But yeah, it's kinda fun. |
+| Ben: | Awesome, I'm really excited to see where this goes. And I don't know, maybe it will make our editing jobs a little bit easier with machine learning. |
+| Katie: | Yeah, well. We can help... My guess is it'll never be as good an editor as a human is. We'll just see. We'll try and get it up in running and we'll see how it goes. |
